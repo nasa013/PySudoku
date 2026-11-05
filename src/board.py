@@ -2,9 +2,9 @@ from pathlib import Path
 
 from .exceptions import InvalidBoardFormatError
 
-SIZE = 9
 
 
+# helper method
 def _parse_row(line: str, row_number: int) -> list[int] | None:
     """
     Turn one text line into a list of ints, or None if the line is only a divider
@@ -49,38 +49,66 @@ class board:
         '''
         self._grid=  [ row[:] for row in grid ]  # copy each row
         self._givens= {
+        (r, c) for r in range(SIZE) for c in range(SIZE) if grid[r][c] != 0
+        } #collect (r, c) for every row r and column c, only if the cell is not 0
 
-
-        }
-
-
-
-    @classmethod
-    def from_string(cls, text: str) -> "Board": 
-        ...
 
 
     @classmethod
-    def from_file(cls, path) -> "Board":
+    def from_string(cls, text: str): 
+        """
+        
+        """
+        rows= []
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            row = _parse_row(line, len(rows) + 1)
+            if row == None:
+                continue
+
+            if len(row) != 9 :
+                raise InvalidBoardFormatError(f"Row {len(row)+1} has {len(row)} cells, expected 9")
+            rows.append(row)
+
+        if len(rows) != 9 :
+            raise InvalidBoardFormatError
+        return cls(rows) 
+
+
+    @classmethod
+    def from_file(cls, path):
+        text = Path(path).read_text(encoding="utf-8")
+        return cls.from_string(text)
+
+    
+
+    def get(self, r: int, c: int) -> int:
         ...
 
-    def get(self, r: int, c: int) -> int: ...
+
+    def set(self, r: int, c: int, value: int) -> None:
+        ...  
+
+    def is_given(self, r: int, c: int) -> bool: 
+        ...
 
 
-    def set(self, r: int, c: int, value: int) -> None: ...  
-
-    def is_given(self, r: int, c: int) -> bool: ...
-
-
-    def empty_cells(self) -> list[tuple[int, int]]: ...
+    def empty_cells(self) -> list[tuple[int, int]]:
+        ...
 
 
-    def find_conflicts(self) -> list[str]: ...
+    def find_conflicts(self) -> list[str]:
+        ...
 
 
-    def copy(self) -> "Board": ...
+    def copy(self):
+        
+        ...
 
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str:
+        ...
 
     
