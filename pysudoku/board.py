@@ -103,7 +103,8 @@ class Board:
     
 
     def set(self, r: int, c: int, value: int) -> None :
-
+        if (r ,c) in self._givens:
+            raise ValueError("Cannot modify a given cell")
         self._grid[r][c]= value
 
 
