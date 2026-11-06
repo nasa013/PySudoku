@@ -15,6 +15,7 @@ class InvalidBoardFormatError(SudokuError):
 
 class InvalidBoardError(SudokuError):
     """Raised when the starting board repeats a digit in a row, column or box."""
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, conflicts: list[str]) -> None:
+        super().__init__("The board has conflicts")
+        self.conflicts = conflicts
 
