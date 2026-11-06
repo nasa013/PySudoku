@@ -55,7 +55,7 @@ class Board:
 
 
     @classmethod
-    def from_string(cls, text: str): 
+    def from_string(cls, text: str) -> "Board": 
         """
         read a board from a text file
         parse the text -->  check conditions for lines 
@@ -102,7 +102,8 @@ class Board:
 
     
 
-    def set(self, r: int, c: int, value: int) -> None:
+    def set(self, r: int, c: int, value: int) -> None :
+
         self._grid[r][c]= value
 
 
@@ -110,47 +111,107 @@ class Board:
     def is_given(self, r: int, c: int) -> bool: 
 
 
-        return (r, c) in self._givens
+        return (r, c) in self._givens 
 
 
 
 
     def empty_cells(self) -> list[tuple[int, int]]:
-        """Return the (r, c) of every empty cell, row by row."""
-        return [
-            (r, c) for r in range(9) for c in range(9) if self._grid[r][c] == 0
-        ]
+        """
+        input: board 
+        check for every row by column for 0's valuse 
+        store them as a tuple in a list 
+        return: 
+        list of int tuples
+        
+        """
+        empty=[]
+        for r in range(9):
+            for c in range(9):
+                if self._grid[r][c] == 0 :
+                    empty.append((r ,c))
+
+        return empty 
 
 
 
 
-    def find_conflicts(self) -> list[str]:
+    def find_conflicts(self) -> list[str] :
+        """
+        sudoku rules 
+        - a number must not repeat in the same row of column 
+        - a number must not repeat inside the same 3×3 box.
+
+        first we check for rows and stores their occurance in a dictionary 
+        the check for columns 
+       and the last is for boxes
+        """
         conflicts= []
+        for r in range(9):
+            seen = {} # stores number and their postion
+            for c in range(9):
+                value= self._grid[r][c]
+                if value == 0 :
+                    continue
+                seen.setdefault(value, []).append(c + 1) #If the number already exists as a key, get its list.If it doesn't exist, create a new empty list.
+            for num , col in seen.items():
+                if len(col) >= 2 :
+                    conflicts.append(f"Row {r + 1}: number {num} appears in columns {col[0]} and {col[1]}.")
+
+        for c in range(9):
+            seen={}
+            for r in range(9):
+                value = self._grid[r][c]
+
+                if value == 0 :
+                    continue
+                seen.setdefault(value,[]).append(r+1)
+            for num , row in seen.items():
+                if len(row) >= 2:
+                    conflicts.append(f"Column {c + 1}: number {num} appears in rows {row[0]} and {row[1]}.")
+
+        for i in range(9):
+            r_start = i // 3 * 3
+            c_start=  i % 3 * 3
+
+            seen = {}  
+            for r in range(r_start, r_start + 3):
+                for c in range(c_start, c_start + 3):
+                    value = self._grid[r][c]
+                    if value == 0:
+                        continue
+                    seen.setdefault(value, []).append((r + 1, c + 1))
+
+            for num, places in seen.items():
+                if len(places) >= 2:
+                    (r1, c1), (r2, c2) = places[0], places[1]
+                    conflicts.append(
+                        f"Box {i + 1}: number {num} appears at ({r1}, {c1}) and ({r2}, {c2})."
+                    )
+
+        return conflicts
+
+
+
+
+
+
+    def copy(self) -> "Board":
         
-
-
-
-    def copy(self):
-        
-        """Return an independent Board that keeps the same givens."""
+        """Return an independent Board """
 
         new = Board(self._grid)
         new._givens = set(self._givens)
         return new
 
 
-    def __str__(self):
+    def __str__(self) -> str :
         """
         to print the board 
         reverse the steps and add the seperators 
         first we loop throuh rows
         then we go inside columns to write the board like 0 becomes . 
-        
-        
         """
-
-
-
         lines=[]
         divider = "------+-------+------"
         for r in range(9):
