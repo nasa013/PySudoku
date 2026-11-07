@@ -246,11 +246,3 @@ python -m unittest discover -s tests -v
 ```
 
 Tests cover parsing, validation, solving, uniqueness, and verification. Each test board lives in its own file under `tests/data/`.
-
-## Rules followed
-
-- Only Python 3.10+ and the standard library. No `numpy`, no `pytest`, no Sudoku or constraint-solver packages.
-- The grid is a `list[list[int]]` with `0` for an empty cell.
-- Internally every position is 0-based `(row, col)`. It is converted to 1-based only when printing messages.
-- Every public method has type hints and a docstring.
-- Only `cli.py` prints to the console.
