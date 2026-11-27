@@ -1,0 +1,28 @@
+# Stage 1: Builder
+FROM python:3.14-slim AS builder
+
+WORKDIR /app
+
+COPY pysudoku/ ./pysudoku/
+COPY data/ ./data/
+
+
+# Stage 2: Runtime
+FROM python:3.10-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Apply the latest OS security updates and remove package metadata.
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder --chown=nobody:nogroup /app/pysudoku ./pysudoku
+COPY --from=builder --chown=nobody:nogroup /app/data ./data
+
+USER nobody:nogroup
+
+ENTRYPOINT ["python", "-m", "pysudoku"]
