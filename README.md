@@ -1,4 +1,4 @@
-# PySudoku — Interactive Sudoku Engine & Solver
+# PySudoku — Sudoku Engine & Solver
 
 An object-oriented Sudoku engine written in **pure Python 3.10+ (standard library only)**.
 It reads puzzles from text files, checks that they follow the rules, solves them with a
@@ -14,15 +14,12 @@ No third-party packages are used anywhere. There is nothing to install, and `req
 | --- | --- | --- |
 | Solve | `python -m pysudoku solve --file data/puzzle.txt` | Validates the board, solves it, and says whether it has 0, 1 or several solutions |
 | Verify | `python -m pysudoku verify --puzzle data/puzzle.txt --submission data/player_submission.txt` | Compares a player's grid with the puzzle and lists every mistake |
-| Generate (bonus) | `python -m pysudoku generate --level easy --out data/new.txt` | Creates a new puzzle with a unique solution |
-| Play (bonus) | `python -m pysudoku play --file data/easy_puzzle.txt` | Interactive game in the terminal |
+| Speed report (bonus) | `python -m pysudoku solve --file data/puzzle.txt --stats` | Also prints the number of recursive calls and the time taken |
 
 ## Requirements
 
 - Python **3.10 or newer**
 - Nothing else. No `pip install`.
-
-Check your version:
 
 ```bash
 python --version
@@ -31,12 +28,12 @@ python --version
 ## Project layout
 
 ```
-pysudoku-project/
+pysudoku/
 ├── pysudoku/
 │   ├── __init__.py        # exports Board, Solver, Verifier
 │   ├── __main__.py        # makes `python -m pysudoku` work; calls cli.main()
 │   ├── board.py           # Board: parsing, validation, printing
-│   ├── solver.py          # Solver: backtracking, count_solutions
+│   ├── solver.py          # Solver: backtracking, MRV, count_solutions
 │   ├── verifier.py        # Verifier + VerificationReport
 │   ├── exceptions.py      # SudokuError and subclasses
 │   └── cli.py             # argparse subcommands, all console output
@@ -120,10 +117,13 @@ Rows and columns are **1-based** in every message, because players count from 1.
 
 ```bash
 python -m pysudoku solve --file data/puzzle.txt --stats
+python -m pysudoku solve --file data/puzzle.txt --stats --no-mrv
 ```
 
-Prints the number of recursive calls and the time taken (`time.perf_counter`).
+`--stats` prints the number of recursive calls and the time taken (`time.perf_counter`).
+`--no-mrv` turns the MRV heuristic off, so you can compare the two runs on the same board.
 
+Both numbers describe the **uniqueness search** (`count_solutions`), which is the part that explores the search tree.
 
 ### Help
 
@@ -208,18 +208,20 @@ The solver works on a **copy** of the board, so the original puzzle object is ne
 | `1` | `UNIQUE SOLUTION` |
 | `2` | `MULTIPLE SOLUTIONS` |
 
-### Speed-ups
+### MRV heuristic
 
-- **Constraint sets:** three lists of sets (`rows`, `cols`, `boxes`) make a clash check `O(1)` instead of scanning 27 cells.
-- **MRV heuristic:** the solver picks the empty cell with the **fewest** legal candidates first, which cuts the search tree.
+**MRV** (Minimum Remaining Values) changes only *which* empty cell the search fills next. Instead of taking the first empty cell, the solver counts the legal digits for every empty cell and picks the one with the **fewest**. A cell with one candidate is a forced move (no guessing), and a cell with zero candidates is a dead end that is found immediately instead of many placements later. The result is a much smaller search tree.
 
 ### MRV comparison
 
-Measured with `--stats` on the same board:
+Measured with `--stats` on the same board (the uniqueness search, `count_solutions`):
 
-| Board | Recursive calls without MRV | Recursive calls with MRV |
-| --- | --- | --- |
-| `data/puzzle.txt` | 4209 |  52  |
+| Board | MRV | Recursive calls | Time |
+| --- | --- | --- | --- |
+| `data/puzzle.txt` | off (`--no-mrv`) | 4632 | 0.1153 s |
+| `data/puzzle.txt` | on (default) | 52 | 0.0328 s |
+
+MRV cuts the recursive calls by about **89 times** (4632 → 52). The time drops by only about **3.5 times**, because each MRV call does more work: it counts the candidates of every empty cell before choosing one. Fewer calls, but heavier ones.
 
 ## Running the tests
 
