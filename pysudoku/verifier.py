@@ -28,7 +28,7 @@ Compares a player's grid with the puzzle and lists every mistake
 
 '''
 
-# a class to hold data and short for 
+# a class to hold data and short form 
 """ class VerificationReport:
     def __init__(self, status: str, problems: list[str]) -> None:
         self.status = status

@@ -3,6 +3,7 @@ from .board import Board
 from .exceptions import InvalidBoardFormatError
 from .solver import Solver
 from .verifier import Verifier
+import time
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -20,6 +21,8 @@ def build_parser() -> argparse.ArgumentParser:
     verify= sub.add_parser("verify", help= "verify the puzzle" )
     verify.add_argument("--puzzle", required=True, help="Path to the original puzzle file")
     verify.add_argument("--submission", required=True, help="Path to the player's submission file")
+    solve.add_argument("--stats", action="store_true", help="Print recursive calls and time taken")
+    solve.add_argument("--no-mrv", action="store_true", help="Disable the MRV heuristic (to compare)")
 
 
     return parser
@@ -50,7 +53,9 @@ def cmd_solve(args) -> int:
     print("OK")
 
     print("[+] Running Sudoku solver...")
-    solver = Solver(board)
+    solver = Solver(board, use_mrv=not args.no_mrv)
+    start = time.perf_counter()
+    elapsed = time.perf_counter() - start
     count = solver.count_solutions()
 
     if count == 0:
@@ -67,7 +72,13 @@ def cmd_solve(args) -> int:
         print("[+] Solution analysis: UNIQUE SOLUTION (exactly 1 solution exists).")
     else:
         print("[+] Solution analysis: MULTIPLE SOLUTIONS (at least 2 solutions exist; one is shown above).")
+
+    if args.stats:
+        mrv = "off" if args.no_mrv else "on"
+        print(f"[+] Stats (MRV {mrv}): {solver.calls} recursive calls, {elapsed:.4f} seconds")
     return 0
+
+    
 
 
 

@@ -84,6 +84,23 @@ class TestSolver(unittest.TestCase):
         solver.solve()
         self.assertEqual(solver.count_solutions(), 1)
 
+    def test_calls_counter_is_positive(self):
+        solver = Solver(load("puzzle.txt"))
+        solver.solve()
+        self.assertGreater(solver.calls, 0)
+
+    def test_mrv_uses_fewer_calls(self):
+        plain = Solver(load("puzzle.txt"), use_mrv=False)
+        plain.solve()
+        smart = Solver(load("puzzle.txt"), use_mrv=True)
+        smart.solve()
+        self.assertLess(smart.calls, plain.calls)
+
+    def test_mrv_gives_same_solution(self):
+        a = Solver(load("puzzle.txt"), use_mrv=False).solve()
+        b = Solver(load("puzzle.txt"), use_mrv=True).solve()
+        self.assertEqual(str(a), str(b))
+
 
 if __name__ == "__main__":
     unittest.main()
