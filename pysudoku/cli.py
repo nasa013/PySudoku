@@ -5,6 +5,13 @@ from .solver import Solver
 from .verifier import Verifier
 import time
 
+# helper to print the speed report 
+def _print_stats(args, calls: int, elapsed: float) -> None:
+    
+    mrv = "off" if args.no_mrv else "on"
+    print(f"[+] Stats (MRV {mrv}): {calls} recursive calls, {elapsed:.4f} seconds")
+
+
 
 def build_parser() -> argparse.ArgumentParser:
 
@@ -54,13 +61,19 @@ def cmd_solve(args) -> int:
 
     print("[+] Running Sudoku solver...")
     solver = Solver(board, use_mrv=not args.no_mrv)
+
+
     start = time.perf_counter()
-    elapsed = time.perf_counter() - start
     count = solver.count_solutions()
+    elapsed = time.perf_counter() - start
+    calls = solver.calls
+    
 
     if count == 0:
         print()
         print("[+] Solution analysis: NO SOLUTION (the clues contradict each other).")
+        if args.stats:
+            _print_stats(args , calls , elapsed)
         return 1
 
     solution = solver.solve()
@@ -74,8 +87,7 @@ def cmd_solve(args) -> int:
         print("[+] Solution analysis: MULTIPLE SOLUTIONS (at least 2 solutions exist; one is shown above).")
 
     if args.stats:
-        mrv = "off" if args.no_mrv else "on"
-        print(f"[+] Stats (MRV {mrv}): {solver.calls} recursive calls, {elapsed:.4f} seconds")
+        _print_stats(args , calls , elapsed)
     return 0
 
     
