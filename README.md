@@ -116,30 +116,6 @@ Final status:
 
 Rows and columns are **1-based** in every message, because players count from 1.
 
-### Speed report (bonus)
-
-```bash
-python -m pysudoku solve --file data/puzzle.txt --stats
-```
-
-Prints the number of recursive calls and the time taken (`time.perf_counter`).
-
-### Generate (bonus)
-
-```bash
-python -m pysudoku generate --level medium --out data/new.txt --seed 42
-```
-
-- `--level easy|medium|hard` keeps about 40, 32 or 26 given cells.
-- `--seed` makes a run repeatable.
-
-### Play (bonus)
-
-```bash
-python -m pysudoku play --file data/easy_puzzle.txt
-```
-
-On Windows this is a plain text loop with ANSI colors. Commands are typed as `row column value`, for example `5 3 7` puts 7 at row 5, column 3.
 
 ### Help
 
@@ -224,18 +200,7 @@ The solver works on a **copy** of the board, so the original puzzle object is ne
 | `1` | `UNIQUE SOLUTION` |
 | `2` | `MULTIPLE SOLUTIONS` |
 
-### Speed-ups
 
-- **Constraint sets:** three lists of sets (`rows`, `cols`, `boxes`) make a clash check `O(1)` instead of scanning 27 cells.
-- **MRV heuristic:** the solver picks the empty cell with the **fewest** legal candidates first, which cuts the search tree.
-
-### MRV comparison
-
-Measured with `--stats` on the same board:
-
-| Board | Recursive calls without MRV | Recursive calls with MRV |
-| --- | --- | --- |
-| `data/puzzle.txt` | _fill in after running_ | _fill in after running_ |
 
 ## Running the tests
 
