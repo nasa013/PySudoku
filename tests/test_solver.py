@@ -14,24 +14,24 @@ def load(name: str) -> Board:
 
 
 class TestSolver(unittest.TestCase):
-    def test_case1_unique_solution(self):
+    def test_unique_solution(self):
         """
-        Case 1: the sample puzzle has exactly one solution, the grid from the spec.
+       the sample puzzle has exactly one solution, the grid from the spec.
         """
         puzzle = load("puzzle.txt")
         solver = Solver(puzzle)
         self.assertEqual(solver.count_solutions(), 1)
         self.assertEqual(str(solver.solve()), str(load("solution.txt")))
 
-    def test_case3_multiple_solutions(self):
+    def test_multiple_solutions(self):
         """
         Case 3: removing the 5 and 3 from row 1 makes the puzzle ambiguous.
         """
         self.assertEqual(Solver(load("multiple_solutions.txt")).count_solutions(), 2)
 
-    def test_case4_valid_but_unsolvable(self):
+    def test_valid_but_unsolvable(self):
         """
-        Case 4: no rule is broken at the start, but there is no solution.
+         no rule is broken at the start, but there is no solution.
         """
         board = load("unsolvable.txt")
         self.assertEqual(board.find_conflicts(), [])
@@ -39,9 +39,9 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(solver.count_solutions(), 0)
         self.assertIsNone(solver.solve())
 
-    def test_case5_invalid_board_is_refused(self):
+    def test_invalid_board_is_refused(self):
         """
-        Case 5: a starting board with a duplicate raises InvalidBoardError.
+        a starting board with a duplicate raises InvalidBoardError.
         """
         with self.assertRaises(InvalidBoardError) as ctx:
             Solver(load("puzzle_extra5.txt"))
@@ -50,16 +50,16 @@ class TestSolver(unittest.TestCase):
             "Box 2: number 5 appears at (1, 4) and (2, 6).",
         ])
 
-    def test_case8_empty_board_is_fast(self):
+    def test_empty_board_is_fast(self):
         """
-        Case 8: an empty board has MULTIPLE solutions, found in under a second.
+        an empty board has MULTIPLE solutions, found in under a second.
         """
         start = time.perf_counter()
         count = Solver(load("empty_board.txt")).count_solutions()
         self.assertEqual(count, 2)
         self.assertLess(time.perf_counter() - start, 1.0)
 
-    def test_case13_original_board_not_changed(self):
+    def test_original_board_not_changed(self):
         """
         Case 13: solving works on a copy, so the original keeps its empty cells.
         """
@@ -85,11 +85,13 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(solver.count_solutions(), 1)
 
     def test_calls_counter_is_positive(self):
+        """The recursive call counter is filled in after a search."""
         solver = Solver(load("puzzle.txt"))
         solver.solve()
         self.assertGreater(solver.calls, 0)
 
     def test_mrv_uses_fewer_calls(self):
+        """MRV needs fewer recursive calls than the plain search on the same board."""
         plain = Solver(load("puzzle.txt"), use_mrv=False)
         plain.solve()
         smart = Solver(load("puzzle.txt"), use_mrv=True)
@@ -97,9 +99,19 @@ class TestSolver(unittest.TestCase):
         self.assertLess(smart.calls, plain.calls)
 
     def test_mrv_gives_same_solution(self):
+        """On a puzzle with a unique solution, MRV finds the same grid as the plain search."""
         a = Solver(load("puzzle.txt"), use_mrv=False).solve()
         b = Solver(load("puzzle.txt"), use_mrv=True).solve()
         self.assertEqual(str(a), str(b))
+
+    
+    def test_mrv_dead_end_ends_fast(self):
+        """A cell with no candidates is found at once, so the search stops almost immediately."""
+        solver = Solver(load("unsolvable.txt"), use_mrv=True)
+        self.assertEqual(solver.count_solutions(), 0)
+        self.assertLess(solver.calls, 10)
+
+    
 
 
 if __name__ == "__main__":

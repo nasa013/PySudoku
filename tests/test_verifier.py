@@ -14,9 +14,9 @@ def verify(submission_file: str):
 
 
 class TestVerifier(unittest.TestCase):
-    def test_case9_sample_submission(self):
+    def test_sample_submission(self):
         """
-        Case 9: the sample submission has the 4 problems from the spec, in order.
+        the sample submission has the 4 problems from the spec, in order.
         """
         report = verify("player_submission.txt")
         self.assertEqual(report.status, "INVALID SOLUTION")
@@ -27,25 +27,25 @@ class TestVerifier(unittest.TestCase):
             "Box 1: number 8 appears at (2, 3) and (3, 3).",
         ])
 
-    def test_case10_correct_solution(self):
+    def test_correct_solution(self):
         """
-        Case 10: the correct solution is VALID with no problems
+        the correct solution is VALID with no problems
         """
         report = verify("solution.txt")
         self.assertEqual(report.status, "VALID SOLUTION")
         self.assertEqual(report.problems, [])
 
-    def test_case11_one_empty_cell(self):
+    def test_one_empty_cell(self):
         """
-        Case 11: one non-given cell set to 0 is INCOMPLETE
+        one non-given cell set to 0 is INCOMPLETE
         """
         report = verify("solution_one_empty.txt")
         self.assertEqual(report.status, "INCOMPLETE")
         self.assertEqual(report.problems, ["Row 9, Column 1: cell is empty."])
 
-    def test_case12_changed_given(self):
+    def test_changed_given(self):
         """
-        Case 12: changing a given is INVALID, and that problem comes first.
+        changing a given is INVALID, and that problem comes first.
         """
         report = verify("solution_changed_given.txt")
         self.assertEqual(report.status, "INVALID SOLUTION")

@@ -8,9 +8,9 @@ DATA = Path(__file__).parent / "data"
 
 
 class TestBoard(unittest.TestCase):
-    def test_case2_compact_equals_spaced(self):
+    def test_compact_equals_spaced(self):
 
-        """Case 2: the dotted compact file parses to the same grid as the spaced one."""
+        """the dotted compact file parses to the same grid as the spaced one."""
         
         spaced = Board.from_file(DATA / "puzzle.txt")
         compact = Board.from_file(DATA / "puzzle_compact.txt")
@@ -18,8 +18,8 @@ class TestBoard(unittest.TestCase):
             for c in range(9):
                 self.assertEqual(spaced.get(r, c), compact.get(r, c))
 
-    def test_case5_extra_five_conflicts(self):
-        """Case 5 (conflicts part): extra 5 gives the row 1 and box 2 messages."""
+    def test_extra_five_conflicts(self):
+        """(conflicts part): extra 5 gives the row 1 and box 2 messages."""
 
         board = Board.from_file(DATA / "puzzle_extra5.txt")
 
@@ -28,17 +28,17 @@ class TestBoard(unittest.TestCase):
             "Box 2: number 5 appears at (1, 4) and (2, 6).",
         ])
 
-    def test_case6_eight_rows(self):
-        """Case 6: a file with only 8 rows raises InvalidBoardFormatError."""
+    def test_eight_rows(self):
+        """ a file with only 8 rows raises InvalidBoardFormatError."""
         with self.assertRaises(InvalidBoardFormatError):
             Board.from_file(DATA / "eight_rows.txt")
 
-    def test_case7_letter(self):
-        """Case 7: a row containing the letter x raises InvalidBoardFormatError."""
+    def test_letter(self):
+        """a row containing the letter x raises InvalidBoardFormatError."""
         with self.assertRaises(InvalidBoardFormatError):
             Board.from_file(DATA / "letter_x.txt")
 
-    # extra tests from claude 
+    # extra tests 
     def test_valid_board_has_no_conflicts(self):
         self.assertEqual(Board.from_file(DATA / "puzzle.txt").find_conflicts(), [])
 

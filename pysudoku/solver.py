@@ -166,4 +166,7 @@ class Solver:
             if best is None or len(cands) < len(best[2]):
                 best = (r, c, cands)
 
+            if len(cands) <= 1:
+                break
+
         return best
